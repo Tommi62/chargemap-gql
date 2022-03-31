@@ -1,8 +1,10 @@
 // schemas/index.js
-import animalSchema from './animalSchema';
-import speciesSchema from './speciesSchema';
-import categorySchema from './categorySchema';
 import {gql} from 'apollo-server-express';
+import stationSchema from './stationSchema';
+import connectionsSchema from './connectionsSchema';
+import connectionTypeSchema from './connectionTypeSchema';
+import currentTypeSchema from './currentTypeSchema';
+import levelTypeSchema from './levelTypeSchema';
 
 const linkSchema = gql`
    type Query {
@@ -15,7 +17,9 @@ const linkSchema = gql`
 
 export default [
    linkSchema,
-   animalSchema,
-   speciesSchema,
-   categorySchema,
+   stationSchema,
+   connectionsSchema,
+   connectionTypeSchema,
+   currentTypeSchema,
+   levelTypeSchema,
 ];
