@@ -1,9 +1,14 @@
 import LevelTypes from "../models/levelTypes";
 
- export default {
-    Connections: {
-        async LevelID(parent, args) {
-            return await LevelTypes.findById(parent.LevelID);
-        }
+export default {
+    Query: {
+      leveltypes: async (parent, args) => await LevelTypes.find(),
     },
- };
+    Connections: {
+      LevelID: async (parent, args) => {
+        return await LevelTypes.findById(parent.LevelID);
+      },
+    },
+  };
+  
+  

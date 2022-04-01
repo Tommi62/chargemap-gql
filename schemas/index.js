@@ -1,7 +1,7 @@
 // schemas/index.js
 import {gql} from 'apollo-server-express';
 import stationSchema from './stationSchema';
-import connectionsSchema from './connectionsSchema';
+import connectionSchema from './connectionSchema';
 import connectionTypeSchema from './connectionTypeSchema';
 import currentTypeSchema from './currentTypeSchema';
 import levelTypeSchema from './levelTypeSchema';
@@ -18,7 +18,7 @@ const linkSchema = gql`
 export default [
    linkSchema,
    stationSchema,
-   connectionsSchema,
+   connectionSchema,
    connectionTypeSchema,
    currentTypeSchema,
    levelTypeSchema,
