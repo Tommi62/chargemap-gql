@@ -40,13 +40,23 @@ import { checkAuth } from './utils/auth';
        await server.start();
        
        server.applyMiddleware({app});
-      
+       
+       app.use ((req, res, next) => {
+         if (req.secure) {
+            // request was via https, so do no special handling
+            next();
+         } else {
+            // request was via http, so redirect to https
+            res.redirect(`https://${req.headers.host}${req.url}`);
+         }
+       });
+   
        db.on('connected', () => {
         app.listen({port: 3000}, () =>
            console.log(
-               `🚀 Server ready at http://localhost:3000${server.graphqlPath}`),
-       );
-      });
+               `🚀 Server ready at https://tommi-server.jelastic.metropolia.fi${server.graphqlPath}`),
+        );
+       });
    } catch (e) {
       console.log('server error: ' + e.message);
    }

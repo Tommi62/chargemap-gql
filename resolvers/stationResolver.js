@@ -82,7 +82,10 @@ export default {
          const newStation = new Station({...args, Connections: conns});
          return newStation.save();
       },
-      modifyStation: async (parent, args) => {
+      modifyStation: async (parent, args, context) => {
+         if(!context.user) {
+            throw new AuthenticationError('Not authorized');
+         }
          let conns;
          if (args.Connections) {
             conns = await Promise.all(args.Connections.map(async (conn) => {
@@ -95,7 +98,10 @@ export default {
 
          return await Station.findByIdAndUpdate(args.id, args, {new: true});
       },
-      deleteStation: async (parents, args) => {
+      deleteStation: async (parents, args, context) => {
+         if(!context.user) {
+            throw new AuthenticationError('Not authorized');
+         }
          return await Station.findByIdAndDelete(args.id);
       }
    }
