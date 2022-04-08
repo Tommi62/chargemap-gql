@@ -33,6 +33,7 @@ import { checkAuth } from './utils/auth';
       
    
        const app = express();
+       app.enable('trust proxy');
    
        await server.start();
        
