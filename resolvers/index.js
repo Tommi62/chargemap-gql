@@ -4,6 +4,7 @@ import connectionsResolver from './connectionsResolver';
 import connectionTypeResolver from './connectionTypeResolver';
 import currentTypeResolver from './currentTypeResolver';
 import levelTypeResolver from './levelTypeResolver';
+import userResolver from './userResolver';
 
 export default [
     stationResolver, 
@@ -11,4 +12,5 @@ export default [
     connectionTypeResolver,
     currentTypeResolver,
     levelTypeResolver,
+    userResolver,
 ];
