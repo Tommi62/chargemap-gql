@@ -6,20 +6,12 @@ import express from 'express';
 import fs from 'fs';
 import https from 'https';
 import http from 'http';
+import helmet from 'helmet';
 import db from './db/db';
 import { checkAuth } from './utils/auth';
 
 (async () => {
    try {
-      const configurations = {
-         // Note: You may need sudo to run on port 443
-         production: { ssl: true, port: 443, hostname: 'tommi-server.jelastic.metropolia.fi', address: 'https://tommi-server.jelastic.metropolia.fi' },
-         development: { ssl: false, port: 3000, hostname: 'localhost', address: 'http://localhost:3000' },
-       };
-     
-       const environment = process.env.NODE_ENV || 'production';
-       const config = configurations[environment];
-
       const server = new ApolloServer({
          typeDefs,
          resolvers,
@@ -34,32 +26,25 @@ import { checkAuth } from './utils/auth';
    
        const app = express();
        app.enable('trust proxy');
+       app.use(helmet.expectCt());
+       app.use(helmet.frameguard());
+       app.use(helmet.hidePoweredBy());
+       app.use(helmet.hsts());
+       app.use(helmet.ieNoOpen());
+       app.use(helmet.noSniff());
+       app.use(helmet.originAgentCluster());
+       app.use(helmet.permittedCrossDomainPolicies());
+       app.use(helmet.referrerPolicy());
+       app.use(helmet.xssFilter());
    
        await server.start();
        
        server.applyMiddleware({app});
-
-       // Create the HTTPS or HTTP server, per configuration
-      let httpServer;
-      if (config.ssl) {
-         // Assumes certificates are in a .ssl folder off of the package root.
-         // Make sure these files are secured.
-         httpServer = https.createServer(
-            {
-            key: fs.readFileSync('./certs/ssl-key.pem'),
-            cert: fs.readFileSync('./certs/ssl-cert.pem')
-            },
-
-            app,
-         );
-      } else {
-         httpServer = http.createServer(app);
-      }
-   
+      
        db.on('connected', () => {
-        httpServer.listen({port: config.port}, () =>
+        app.listen({port: 3000}, () =>
            console.log(
-               `🚀 Server ready at ${config.address}${server.graphqlPath}`),
+               `🚀 Server ready at http://localhost:3000${server.graphqlPath}`),
        );
       });
    } catch (e) {
