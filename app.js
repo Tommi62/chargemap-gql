@@ -12,6 +12,15 @@ import { checkAuth } from './utils/auth';
 
 (async () => {
    try {
+      const configurations = {
+         // Note: You may need sudo to run on port 443
+         production: { ssl: true, port: 8000, hostname: 'localhost', address: 'https://localhost:8000' },
+         development: { ssl: false, port: 3000, hostname: 'localhost', address: 'http://localhost:3000' },
+       };
+     
+       const environment = process.env.NODE_ENV || 'production';
+       const config = configurations[environment];
+
       const server = new ApolloServer({
          typeDefs,
          resolvers,
@@ -41,22 +50,41 @@ import { checkAuth } from './utils/auth';
        
        server.applyMiddleware({app});
        
-       app.use ((req, res, next) => {
-         if (req.secure) {
-            // request was via https, so do no special handling
-            next();
-         } else {
-            // request was via http, so redirect to https
-            res.redirect(`https://${req.headers.host}${req.url}`);
-         }
-       });
+       if (config.ssl) {
+         app.use ((req, res, next) => {
+            if (req.secure) {
+              // request was via https, so do no special handling
+              next();
+            } else {
+              // request was via http, so redirect to https
+              res.redirect(`https://${req.headers.host}${req.url}`);
+            }
+          });
+       }
+
+       // Create the HTTPS or HTTP server, per configuration
+      let httpServer;
+      if (config.ssl) {
+         // Assumes certificates are in a .ssl folder off of the package root.
+         // Make sure these files are secured.
+         httpServer = https.createServer(
+            {
+            key: fs.readFileSync('./certs/ssl-key.pem'),
+            cert: fs.readFileSync('./certs/ssl-cert.pem')
+            },
+
+            app,
+         );
+      } else {
+         httpServer = http.createServer(app);
+      }
    
        db.on('connected', () => {
-        app.listen({port: 3000}, () =>
+        httpServer.listen({port: config.port}, () =>
            console.log(
-               `🚀 Server ready at https://tommi-server.jelastic.metropolia.fi${server.graphqlPath}`),
-        );
-       });
+               `🚀 Server ready at ${config.address}${server.graphqlPath}`),
+       );
+      });
    } catch (e) {
       console.log('server error: ' + e.message);
    }
